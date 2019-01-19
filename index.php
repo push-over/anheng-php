@@ -60,32 +60,47 @@ function getValues($text)
     return $arrs;
 }
 
-$str = file_get_contents('20180601090725_YXSP_169.pdf.text'); // 将文件读取到字符串中
+//获取新数组
+function newData($name, $value)
+{
+    $arr2 = [];
 
-$str_encoding = mb_convert_encoding($str, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');//转换字符集（编码）
-
-$arr = classify1($str);
-
-$name = $arr[0];  // 返回的表格标题赋值给name
-$value = $arr[1];   // 返回的表格内容赋值给value
-
-$arr2 = [];
-
-//遍历表格标题数据
-foreach ($name as $nameIndex => $v) {
-    $arr2[$v] = $v;
-//    定义一个临时的数组
-    $temp = [];
-//    遍历表格内容数据
-    foreach ($value as $valueIndex => $v1) {
-//        当值的索引或值除以7的余数等于名称的索引时,就把这个值放到临时的数组中
-        if ($valueIndex === $nameIndex || ($valueIndex % 7) === $nameIndex) {
-            $temp[] = $v1;
+    //遍历表格标题数据
+    foreach ($name as $nameIndex => $v) {
+        $arr2[$v] = $v;
+        // 定义一个临时的数组
+        $temp = [];
+        // 遍历表格内容数据
+        foreach ($value as $valueIndex => $v1) {
+            //当值的索引或值除以7的余数等于名称的索引时,就把这个值放到临时的数组中
+            if ($valueIndex === $nameIndex || ($valueIndex % 7) === $nameIndex) {
+                $temp[] = $v1;
+            }
         }
+        // 最后把临时的数组放进数组中
+        $arr2[$v] = $temp;
     }
-//    最后把临时的数组放进数组中
-    $arr2[$v] = $temp;
+
+    return $arr2;
 }
+
+//最终的数据
+function classify2($file)
+{
+    $str = file_get_contents($file); // 将文件读取到字符串中
+
+    $str_encoding = mb_convert_encoding($str, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');//转换字符集（编码）
+
+    $arr = classify1($str);
+
+    $name = $arr[0];  // 返回的表格标题赋值给name
+    $value = $arr[1];   // 返回的表格内容赋值给value
+
+    $arr2 = newData($name, $value);
+    return $arr2;
+}
+
+$arr2 = classify2('20180601090725_YXSP_169.pdf.text');
 
 ?>
 
@@ -104,24 +119,24 @@ foreach ($name as $nameIndex => $v) {
     </style>
 </head>
 <body>
-    <table border="1"  width="800" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-            <?php foreach ($arr2 as $k => $v){?>
+<table border="1" width="800" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <?php foreach ($arr2 as $k => $v) { ?>
             <th><?php echo $k ?></th>
-            <?php }?>
-        </tr>
+        <?php } ?>
+    </tr>
 
-        <?php foreach ($arr2['Name'] as $k => $v){?>
+    <?php foreach ($arr2['Name'] as $k => $v) { ?>
         <tr>
-            <td><?php echo $arr2['FND'][$k]?></td>
-            <td><?php echo $arr2['Name'][$k]?></td>
-            <td><?php echo $arr2['ug/L'][$k]?></td>
-            <td><?php echo $arr2['S/N'][$k]?></td>
-            <td><?php echo $arr2['RT'][$k]?></td>
-            <td><?php echo $arr2['Abs.Resp'][$k]?></td>
-            <td><?php echo $arr2['Area'][$k]?></td>
+            <td><?php echo $arr2['FND'][$k] ?></td>
+            <td><?php echo $arr2['Name'][$k] ?></td>
+            <td><?php echo $arr2['ug/L'][$k] ?></td>
+            <td><?php echo $arr2['S/N'][$k] ?></td>
+            <td><?php echo $arr2['RT'][$k] ?></td>
+            <td><?php echo $arr2['Abs.Resp'][$k] ?></td>
+            <td><?php echo $arr2['Area'][$k] ?></td>
         </tr>
-        <?php }?>
-    </table>
+    <?php } ?>
+</table>
 </body>
 </html>
